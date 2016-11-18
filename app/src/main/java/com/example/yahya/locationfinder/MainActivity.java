@@ -115,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onPause();
         if (googleApiClient.isConnected() && isPermissionGranted) {
             LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
-            googleApiClient.disconnect();
         }
     }
 
