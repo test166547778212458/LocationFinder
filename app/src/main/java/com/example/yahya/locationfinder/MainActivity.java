@@ -4,10 +4,10 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,9 +23,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static int counter = 0;
     private static int c = 0;
-    private static int c2 = 0;
     private FusedLocationProviderApi locationProvider = LocationServices.FusedLocationApi;
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
@@ -58,10 +56,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
-    @Override
-    public void onConnected(Bundle bundle) {
-        requestLocationUpdates();
-    }
+
 
     private void requestLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -77,6 +72,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
         locationProvider.requestLocationUpdates(googleApiClient, locationRequest, this);
     }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        requestLocationUpdates();
+    }
+
     @Override
     public void onConnectionSuspended(int i) {
 
@@ -114,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onPause();
         if (googleApiClient.isConnected() && isPermissionGranted) {
             LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+            googleApiClient.disconnect();
         }
     }
 
@@ -131,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     Toast.makeText(getApplicationContext(),"Permission Granted",Toast.LENGTH_SHORT).show();
                     isPermissionGranted = true;
+                    requestLocationUpdates();
                 }else{
                     Toast.makeText(getApplicationContext(),"Permission Denied",Toast.LENGTH_SHORT).show();
                 }
